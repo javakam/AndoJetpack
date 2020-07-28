@@ -7,7 +7,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
- * Title: $
+ * Title:
  * <p>
  * Description:
  * </p>
@@ -16,8 +16,12 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "t_user")
 data class User(
-    @PrimaryKey @ColumnInfo(name = "uid") var uid: Long,
+    @PrimaryKey @ColumnInfo(name = "uid") var uid: Long?,
     @ColumnInfo(name = "first_name") var firstName: String?,
-    @ColumnInfo(name = "last_name") var lastName: String?,
-    @Ignore var picture: Bitmap? = null
-)
+    @ColumnInfo(name = "last_name") var lastName: String?
+) {
+    @Ignore
+    var picture: Bitmap? = null
+    //or
+    // constructor() : this(0, "", "")
+}
