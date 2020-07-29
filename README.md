@@ -13,7 +13,7 @@
 先看指南, 再看CodeLab, 食用更佳
 - [指南](https://developer.android.google.cn/training/data-storage/room)
 - [CodeLabs - Android Room with a View - Kotlin](https://codelabs.developers.google.com/codelabs/android-room-with-a-view-kotlin/index.html?index=..%2F..index#0)
-对应的源代码 <https://github.com/googlecodelabs/android-room-with-a-view/tree/kotlin>
+<br>对应的源代码 <https://github.com/googlecodelabs/android-room-with-a-view/tree/kotlin>
 
 ### 使用主键
 
@@ -26,6 +26,9 @@ SQLite 中的表名称不区分大小写
 如果您的应用在多个进程中运行，请在数据库构建器调用中包含 enableMultiInstanceInvalidation()。这样，如果您在每个进程中都有一个 AppDatabase 实例，可以在一个进程中使共享数据库文件失效，并且这种失效会自动传播到其他进程中 AppDatabase 的实例
 
 ### 定义对象之间的关系
+
+[定义对象之间的关系](https://developer.android.google.cn/training/data-storage/room/relationships)
+
 对象嵌套
 ```
 @Entity
@@ -151,12 +154,6 @@ fun getSongsWithPlaylists(): List<SongWithPlaylists>
 
 > 注意：使用嵌套关系查询数据需要 Room 处理大量数据，可能会影响性能。因此，请在查询中尽量少用嵌套关系。
 
-
-[定义对象之间的关系](https://developer.android.google.cn/training/data-storage/room/relationships)
-
-
-
-
 ### Room migrations
 
 [Understanding migrations with Room](https://medium.com/androiddevelopers/understanding-migrations-with-room-f01e04b07929)
@@ -209,6 +206,13 @@ static final Migration MIGRATION_3_4 = new Migration(3, 4) {
 val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
 userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
 ```
+
+## Lifecycle
+
+[CodeLabs - Incorporate Lifecycle-Aware Components](https://codelabs.developers.google.com/codelabs/android-lifecycles/#0)
+<br>对应源码 👉 <https://github.com/googlecodelabs/android-lifecycles>
+
+todo 2020年7月29日 17:04:24 <https://codelabs.developers.google.com/codelabs/android-lifecycles/#4>
 
 ## Paging
 [CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
