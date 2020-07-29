@@ -24,7 +24,9 @@ class UserListAdapter internal constructor() :
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val current = users[position]
-        holder.wordItemView.text = current.firstName.plus(" ").plus(current.lastName)
+        holder.wordItemView.text = current.nickName.plus(" ")
+            .plus(current.firstName).plus(" ")
+            .plus(current.lastName)
     }
 
     internal fun setUsers(users: List<User>) {

@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 /**
  * Title:
@@ -16,7 +19,7 @@ import kotlinx.coroutines.launch
  * @author Changbao
  * @date 2020/7/23  15:13
  */
-@Database(entities = arrayOf(User::class), version = 1, exportSchema = false)
+@Database(entities = arrayOf(User::class), version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -29,15 +32,19 @@ abstract class AppDatabase : RoomDatabase() {
             super.onOpen(db)
             INSTANCE?.let { database ->
                 scope.launch {
-                    var userDao = database.userDao()
+                    val userDao = database.userDao()
 
                     // Delete all content here.
-                    userDao.deleteAll()
+                    //userDao.deleteAll()
+
+                    //延迟一秒
+                    //delay(1000)
 
                     // Add sample users.
-                    var user = User(uid = null,firstName = "Changbao",lastName =  "Ma")
+                    var user =
+                        User(uid = null, nickName = "xiaobao", firstName = null, lastName = null)
                     userDao.add(user)
-                    user =User(uid = null,firstName = "666",lastName =  "Timo")
+                    user = User(uid = null, nickName = "jingang", firstName = null, lastName = null)
                     userDao.add(user)
 
                 }
@@ -50,6 +57,24 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create the new table
+                database.execSQL(
+                    "CREATE TABLE t_user_new (uid INTEGER,nick_name TEXT,first_name TEXT, last_name TEXT, PRIMARY KEY(uid))"
+                )
+
+                // Copy the data
+                database.execSQL(
+                    "INSERT INTO t_user_new (uid,first_name,last_name) SELECT uid, first_name, last_name FROM t_user"
+                )
+                // Remove the old table
+                database.execSQL("DROP TABLE t_user")
+                // Change the table name to the correct one
+                database.execSQL("ALTER TABLE t_user_new RENAME TO t_user")
+            }
+        }
+
         fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
@@ -61,7 +86,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
-                    //.addMigrations()
+                    .addMigrations(MIGRATION_1_2)
                     .addCallback(UserDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance

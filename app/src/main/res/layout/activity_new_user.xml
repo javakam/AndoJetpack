@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:fontFamily="sans-serif-light"
-        android:hint="First Name"
+        android:hint="昵称"
         android:inputType="textAutoComplete"
         android:minHeight="50dp"
         android:textSize="16sp" />

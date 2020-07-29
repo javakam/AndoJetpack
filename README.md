@@ -141,7 +141,10 @@ userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class
 ```
 
 -  Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number.
+改了 data class `User` 中的字段,但是没有更新 version
 
+
+- 
 
 
 
