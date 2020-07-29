@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.ando.jetpack.db.User
+import com.ando.jetpack.room.User
 
 class UserListAdapter internal constructor() :
     RecyclerView.Adapter<UserListAdapter.UserViewHolder>() {
@@ -24,9 +24,7 @@ class UserListAdapter internal constructor() :
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val current = users[position]
-        holder.wordItemView.text = current.nickName.plus(" ")
-            .plus(current.firstName).plus(" ")
-            .plus(current.lastName)
+        holder.wordItemView.text = current.nickName
     }
 
     internal fun setUsers(users: List<User>) {

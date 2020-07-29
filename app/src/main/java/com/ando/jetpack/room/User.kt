@@ -1,10 +1,7 @@
-package com.ando.jetpack.db
+package com.ando.jetpack.room
 
 import android.graphics.Bitmap
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 /**
  * Title:
@@ -16,10 +13,11 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "t_user")
 data class User(
-    @PrimaryKey @ColumnInfo(name = "uid") var uid: Long?,
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
     @ColumnInfo(name = "nick_name") var nickName: String?,
-    @ColumnInfo(name = "first_name") var firstName: String?,
-    @ColumnInfo(name = "last_name") var lastName: String?
+    @ColumnInfo(name = "first_name") var firstName: String? = null,
+    @ColumnInfo(name = "last_name") var lastName: String? = null,
+    @ColumnInfo(name = "address") @Embedded var address: Address? = null
 ) {
     @Ignore
     var picture: Bitmap? = null

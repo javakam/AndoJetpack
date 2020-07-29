@@ -10,14 +10,12 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ando.jetpack.db.User
+import com.ando.jetpack.room.User
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,8 +29,6 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE_USER_ADD = 1
 
     private lateinit var userViewModel: MainActivityViewModel
-//    private val userViewModel: MainActivityViewModel by viewModels<MainActivityViewModel>()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +51,11 @@ class MainActivity : AppCompatActivity() {
         }, 0)
 
         //https://stackoverflow.com/questions/44194579/android-viewmodel-has-no-zero-argument-constructor
-        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
+        userViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        //or
+//        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+//        userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
+
         userViewModel.allUsers.observe(this, Observer { users ->
             users?.let { adapter.setUsers(it) }
         })

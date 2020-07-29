@@ -1,6 +1,7 @@
-package com.ando.jetpack.db
+package com.ando.jetpack.room.dao
 
 import androidx.lifecycle.LiveData
+import com.ando.jetpack.room.User
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO

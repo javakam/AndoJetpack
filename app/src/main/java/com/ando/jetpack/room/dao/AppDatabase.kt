@@ -1,4 +1,4 @@
-package com.ando.jetpack.db
+package com.ando.jetpack.room.dao
 
 import android.content.Context
 import androidx.room.Database
@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.ando.jetpack.room.User
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  * @author Changbao
  * @date 2020/7/23  15:13
  */
-@Database(entities = arrayOf(User::class), version = 2, exportSchema = false)
+@Database(entities = arrayOf(User::class), version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -35,16 +35,22 @@ abstract class AppDatabase : RoomDatabase() {
                     val userDao = database.userDao()
 
                     // Delete all content here.
-                    //userDao.deleteAll()
+                    userDao.deleteAll()
 
                     //延迟一秒
                     //delay(1000)
 
                     // Add sample users.
                     var user =
-                        User(uid = null, nickName = "xiaobao", firstName = null, lastName = null)
+                        User(
+                            uid = null,
+                            nickName = "xiaobao"
+                        )
                     userDao.add(user)
-                    user = User(uid = null, nickName = "jingang", firstName = null, lastName = null)
+                    user = User(
+                        uid = null,
+                        nickName = "jingang"
+                    )
                     userDao.add(user)
 
                 }
@@ -76,7 +82,8 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
-            val tempInstance = INSTANCE
+            val tempInstance =
+                INSTANCE
             if (tempInstance != null) {
                 return tempInstance
             }
@@ -86,8 +93,12 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
-                    .addCallback(UserDatabaseCallback(scope))
+                    //.addMigrations(MIGRATION_1_2)
+                    .addCallback(
+                        UserDatabaseCallback(
+                            scope
+                        )
+                    )
                     .build()
                 INSTANCE = instance
                 return instance

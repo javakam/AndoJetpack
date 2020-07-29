@@ -12,7 +12,8 @@
 ## Room
 先看指南, 再看CodeLab, 食用更佳
 - [指南](https://developer.android.google.cn/training/data-storage/room)
-- [CodeLabs - Room](https://codelabs.developers.google.com/codelabs/android-room-with-a-view-kotlin/index.html?index=..%2F..index#0)
+- [CodeLabs - Android Room with a View - Kotlin](https://codelabs.developers.google.com/codelabs/android-room-with-a-view-kotlin/index.html?index=..%2F..index#0)
+对应的源代码 <https://github.com/googlecodelabs/android-room-with-a-view/tree/kotlin>
 
 ### 使用主键
 
@@ -24,8 +25,137 @@ SQLite 中的表名称不区分大小写
 
 如果您的应用在多个进程中运行，请在数据库构建器调用中包含 enableMultiInstanceInvalidation()。这样，如果您在每个进程中都有一个 AppDatabase 实例，可以在一个进程中使共享数据库文件失效，并且这种失效会自动传播到其他进程中 AppDatabase 的实例
 
+### 定义对象之间的关系
+对象嵌套
+```
+@Entity
+data class Address(...)
 
-2020年7月23日 15:23:46  todo  https://developer.android.google.cn/training/data-storage/room/relationships
+@Entity(tableName = "t_user")
+data class User(
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
+    ...
+    @ColumnInfo(name = "address") @Embedded var address: Address? = null
+)
+```
+一对一
+```
+@Entity
+data class Book(
+    @ColumnInfo(name = "id") @PrimaryKey val id: Long,
+    @ColumnInfo(name = "ownerUserId") val ownerUserId: Long?
+)
+
+🍎映射表
+//不加 @Entity
+data class UserAndBook(
+    @Embedded val user: User,
+    @Relation(parentColumn = "uid", entityColumn = "ownerUserId")
+    val book: Book
+)
+
+/**
+ * 1. “select * from t_user” 先查询 User 再查询 Book 表。
+ *
+ * 2. 该方法需要 Room 运行两次查询，因此应向该方法添加 @Transaction 注释，以确保整个操作以原子方式执行。
+ */
+@Transaction
+@Query("select * from t_user")
+suspend fun getUsersAndBooks(): List<UserAndBook>
+```
+一对多
+```
+@Entity
+data class Playlist(
+    @PrimaryKey val playlistId: Long,
+    val userCreatorId: Long,
+    val playlistName: String
+)
+
+🍎映射表
+//不加 @Entity
+data class UserWithPlaylists(
+    @Embedded val user: User,
+    @Relation(
+        parentColumn = "uid",
+        entityColumn = "userCreatorId"
+    )
+    val playlists: List<Playlist>
+)
+
+/**
+ * 1. “select * from t_user” 先查询 User 再查询 Playlist 表。
+ *
+ * 2. 该方法需要 Room 运行两次查询，因此应向该方法添加 @Transaction 注释，以确保整个操作以原子方式执行。
+ */
+@Transaction
+@Query("select * from t_user")
+suspend  fun getUsersWithPlaylists(): List<UserWithPlaylists>
+```
+多对多
+```
+@Entity(tableName = "t_playlist")
+data class Playlist(
+    @PrimaryKey val playlistId: Long,
+    val userCreatorId: Long,
+    val playlistName: String
+)
+
+@Entity(tableName = "t_song")
+data class Song(
+    @PrimaryKey val songId: Long,
+    val songName: String,
+    val artist: String
+)
+
+@Entity(primaryKeys = ["playlistId", "songId"])
+data class PlaylistSongCrossRef(
+    val playlistId: Long,
+    val songId: Long
+)
+```
+两种情形：
+```
+data class PlaylistWithSongs(
+    @Embedded val playlist: Playlist,
+    @Relation(
+        parentColumn = "playlistId",
+        entityColumn = "songId",
+        associateBy = Junction(PlaylistSongCrossRef::class)
+    )
+    val songs: List<Song>
+)
+
+data class SongWithPlaylists(
+    @Embedded val song: Song,
+    @Relation(
+        parentColumn = "songId",
+        entityColumn = "playlistId",
+        associateBy = Junction(PlaylistSongCrossRef::class)
+    )
+    val playlists: List<Playlist>
+)
+```
+dao : 
+```
+@Transaction
+@Query("select * from t_playlist")
+fun getPlaylistsWithSongs(): List<PlaylistWithSongs>
+
+@Transaction
+@Query("select * from t_song")
+fun getSongsWithPlaylists(): List<SongWithPlaylists>
+```
+
+嵌套关系 👉 <https://developer.android.google.cn/training/data-storage/room/relationships#nested-relationships>
+
+> 注意：使用嵌套关系查询数据需要 Room 处理大量数据，可能会影响性能。因此，请在查询中尽量少用嵌套关系。
+
+
+[定义对象之间的关系](https://developer.android.google.cn/training/data-storage/room/relationships)
+
+
+
 
 ### Room migrations
 
@@ -71,7 +201,33 @@ static final Migration MIGRATION_3_4 = new Migration(3, 4) {
 [ViewModels : A Simple Example](https://medium.com/androiddevelopers/viewmodels-a-simple-example-ed5ac416317e)
 
 
-AndroidViewModel 和 ViewModel 的选择: If you need the application context (which has a lifecycle that lives as long as the application does), use AndroidViewModel
+- AndroidViewModel 和 ViewModel 的选择: If you need the application context (which has a lifecycle that lives as long as the application does), use AndroidViewModel
+
+- AndroidViewModel 传入 application :
+
+```
+val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
+```
+
+## Paging
+[CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
+
+
+
+## DataBinding
+[CodeLabs - Data Binding in Android](https://codelabs.developers.google.com/codelabs/android-databinding/index.html#0)
+
+
+
+## Navigation
+[CodeLabs - Jetpack Navigation](https://codelabs.developers.google.com/codelabs/android-navigation/#0)
+
+
+
+## WorkManager
+[CodeLabs - Background Work with WorkManager - Kotlin](https://codelabs.developers.google.com/codelabs/android-workmanager/#0)
+
 
 
 ## JetPack Bugs

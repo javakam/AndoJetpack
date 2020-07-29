@@ -3,11 +3,10 @@ package com.ando.jetpack
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.ando.jetpack.db.AppDatabase
-import com.ando.jetpack.db.User
-import com.ando.jetpack.db.UserRepository
+import com.ando.jetpack.room.dao.AppDatabase
+import com.ando.jetpack.room.User
+import com.ando.jetpack.room.dao.UserRepository
 import kotlinx.coroutines.launch
 
 /**
@@ -32,8 +31,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val allUsers: LiveData<List<User>>
 
     init {
-        val database = AppDatabase.getDatabase(application,viewModelScope)
-        repository = UserRepository(database.userDao())
+        val userDao = AppDatabase.getDatabase(application, viewModelScope).userDao()
+        repository = UserRepository(userDao)
         allUsers = repository.allUsers
     }
 
@@ -43,10 +42,5 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun insert(user: User) = viewModelScope.launch {
         repository.insert(user)
     }
-
-    val currentName: MutableLiveData<String> by lazy {
-        MutableLiveData<String>()
-    }
-
 
 }
