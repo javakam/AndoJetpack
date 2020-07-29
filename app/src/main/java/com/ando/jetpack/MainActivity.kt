@@ -4,20 +4,25 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.Window
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ando.jetpack.db.AppDatabase
 import com.ando.jetpack.db.User
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -26,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE_USER_ADD = 1
 
     private lateinit var userViewModel: MainActivityViewModel
+//    private val userViewModel: MainActivityViewModel by viewModels<MainActivityViewModel>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,10 +43,20 @@ class MainActivity : AppCompatActivity() {
         val adapter = UserListAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                outRect.set(0, 2, 0, 2)
+            }
+        }, 0)
 
-        //todo 2020-07-28 17:16:11
         //https://stackoverflow.com/questions/44194579/android-viewmodel-has-no-zero-argument-constructor
-        userViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
         userViewModel.allUsers.observe(this, Observer { users ->
             users?.let { adapter.setUsers(it) }
         })
@@ -50,16 +67,16 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(intent, REQUEST_CODE_USER_ADD)
         }
 
-       /*
-       val user = User(System.currentTimeMillis(), "Changbao", "Ma")
-        GlobalScope.launch(Dispatchers.Main) {
-            withContext(Dispatchers.IO) {
-                AppDatabase.getDatabase(applicationContext, userViewModel.viewModelScope).userDao()
-                    .add(user)
-            }
-            Log.w("coroutines", "插入成功!")
-        }
-        */
+        /*
+        val user = User(System.currentTimeMillis(), "Changbao", "Ma")
+         GlobalScope.launch(Dispatchers.Main) {
+             withContext(Dispatchers.IO) {
+                 AppDatabase.getDatabase(applicationContext, userViewModel.viewModelScope).userDao()
+                     .add(user)
+             }
+             Log.w("coroutines", "插入成功!")
+         }
+         */
 
         GlobalScope.launch(Dispatchers.Main) {
             Log.w("coroutines", "launch ${Thread.currentThread().name}")

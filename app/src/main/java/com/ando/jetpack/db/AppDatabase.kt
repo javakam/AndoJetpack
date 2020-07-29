@@ -61,6 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 )
+                    //.addMigrations()
                     .addCallback(UserDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance

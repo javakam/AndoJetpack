@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
  */
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
-
     private var repository: UserRepository
 
     // Using LiveData and caching what getAlphabetizedWords returns has several benefits:

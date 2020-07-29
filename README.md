@@ -90,7 +90,7 @@ data class User(
     @Ignore var picture: Bitmap? = null
 )
 
-ok:
+success:
 @Entity(tableName = "t_user")
 data class User(
     @PrimaryKey @ColumnInfo(name = "uid") var uid: Long,
@@ -113,7 +113,7 @@ error:
 @Query("select * from t_user order by uid asc")
 fun getAll(): MutableLiveData<List<User>>
 
-ok:
+success:
 @Query("select * from t_user order by uid asc")
 fun getAll(): LiveData<List<User>>
 ```
@@ -121,7 +121,26 @@ fun getAll(): LiveData<List<User>>
 - Android ViewModel has no zero argument constructor
 <https://stackoverflow.com/questions/44194579/android-viewmodel-has-no-zero-argument-constructor>
 
+For lifecycle_version = '2.2.0' ViewProviders.of API is deprecated . It`s my situation :
+```
+class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
+    private var repository: UserRepository
+
+    val allUsers: LiveData<List<User>>
+......
+
+
+error:
+val userViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+
+success:
+val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
+
+```
+
+-  Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number.
 
 
 
