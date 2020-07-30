@@ -75,6 +75,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$rootProject.lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycle_version"
+    // Saved state module
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_save_state_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.lifecycle_version"
 
     // Material design

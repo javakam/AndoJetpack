@@ -212,7 +212,80 @@ userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class
 [CodeLabs - Incorporate Lifecycle-Aware Components](https://codelabs.developers.google.com/codelabs/android-lifecycles/#0)
 <br>对应源码 👉 <https://github.com/googlecodelabs/android-lifecycles>
 
-todo 2020年7月29日 17:04:24 <https://codelabs.developers.google.com/codelabs/android-lifecycles/#4>
+- Activity中注册 LifeCycleObserver
+
+```
+getLifecycle().addObserver(new LifecycleObserver() {
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            void addLocationListener() {
+                Log.w("BoundLocationMgr", "Listener added");
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            void removeLocationListener() {
+                Log.w("BoundLocationMgr", "Listener removed");
+            }
+
+        });
+```
+
+### Fragment Communication
+> **Note:** You should use the activity as the lifecycle owner, as the lifecycle of each fragment is independent.
+
+```
+
+
+```
+
+### Persist ViewModel state across process recreation (beta)
+👉 <https://codelabs.developers.google.com/codelabs/android-lifecycles/#6>
+
+
+模拟系统杀死进程（需要运行P +的仿真器）。 首先，通过键入以下命令来确保该进程正在运行：
+
+`adb shell ps "-A |grep" lifecycle`
+
+在设备或仿真器上按Home键，然后运行：
+
+`adb shell am kill com.example.android.codelabs.lifecycle`
+
+您应该什么也没有得到，表明该进程已被正确终止。
+
+
+再次打开应用程序（在应用程序启动器中查找LC Step6）。
+
+ViewModel中的值未保留，但是EditText恢复了其状态。 
+ 
+> 一些UI元素（包括EditText）使用自己的onSaveInstanceState实现保存其状态。 杀死进程后，将以与更改配置后恢复该状态相同的方式恢复该状态。 阅读ViewModels：持久性，onSaveInstanceState（），恢复UI状态和加载程序以获取更多信息。
+
+> ⭐实际上，`lifecycle-viewmodel-savedstate` 模块还使用 onSaveInstanceState 和 onRestoreInstanceState 来保留ViewModel状态，但是这使这些操作更加方便。
+
+- SavedStateHandle Usage
+
+```
+public class SavedStateViewModel extends ViewModel {
+    private static final String NAME_KEY = "name";
+    private SavedStateHandle mState;
+
+    public SavedStateViewModel(SavedStateHandle savedStateHandle) {
+        mState = savedStateHandle;
+    }
+
+    // Expose an immutable LiveData
+    LiveData<String> getName() {
+        // getLiveData obtains an object that is associated with the key wrapped in a LiveData
+        // so it can be observed for changes.
+        return mState.getLiveData(NAME_KEY);
+    }
+
+    void saveNewName(String newName) {
+        // Sets a new value for the object associated to the key. There's no need to set it
+        // as a LiveData.
+        mState.set(NAME_KEY, newName);
+    }
+}
+```
 
 ## Paging
 [CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
