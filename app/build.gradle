@@ -79,6 +79,16 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_save_state_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.lifecycle_version"
 
+    // Paging
+    implementation "androidx.paging:paging-runtime:$rootProject.paging_version"
+    // alternatively - without Android dependencies for tests
+    testImplementation "androidx.paging:paging-common:$rootProject.paging_version"
+    // optional - RxJava2 support
+    implementation "androidx.paging:paging-rxjava2:$rootProject.paging_version"
+    // optional - Guava ListenableFuture support
+    implementation "androidx.paging:paging-guava:$rootProject.paging_version"
+
+
     // Material design
     implementation "com.google.android.material:material:$rootProject.material_version"
 

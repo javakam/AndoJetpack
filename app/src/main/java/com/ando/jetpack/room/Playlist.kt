@@ -9,4 +9,3 @@ data class Playlist(
     val userCreatorId: Long,
     val playlistName: String
 )
-    

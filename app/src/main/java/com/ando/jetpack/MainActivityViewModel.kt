@@ -1,9 +1,7 @@
 package com.ando.jetpack
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.ando.jetpack.room.dao.AppDatabase
 import com.ando.jetpack.room.User
 import com.ando.jetpack.room.dao.UserRepository
@@ -34,6 +32,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         val userDao = AppDatabase.getDatabase(application, viewModelScope).userDao()
         repository = UserRepository(userDao)
         allUsers = repository.allUsers
+
     }
 
     /**

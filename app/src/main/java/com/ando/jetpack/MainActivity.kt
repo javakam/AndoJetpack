@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == REQUEST_CODE_USER_ADD && resultCode == Activity.RESULT_OK) {
             data?.getStringExtra(NewUserActivity.EXTRA_REPLY)?.let {
-                val word = User(null, it, null,null)
+                val word = User(null, it, null, null)
                 userViewModel.insert(word)
             }
         } else {

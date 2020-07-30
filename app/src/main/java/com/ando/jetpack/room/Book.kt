@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
  * @author Changbao
  * @date 2020/7/29  14:42
  */
-@Entity
+@Entity(tableName = "t_book")
 data class Book(
     @ColumnInfo(name = "id") @PrimaryKey val id: Long,
     @ColumnInfo(name = "ownerUserId") val ownerUserId: Long?

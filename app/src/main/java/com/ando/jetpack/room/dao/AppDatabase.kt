@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.ando.jetpack.room.User
+import com.ando.jetpack.room.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  * @author Changbao
  * @date 2020/7/23  15:13
  */
-@Database(entities = arrayOf(User::class), version = 1, exportSchema = false)
+@Database(entities = [User::class, Book::class, Playlist::class, Song::class, PlaylistSongCrossRef::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao

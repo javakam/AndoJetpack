@@ -189,14 +189,121 @@ static final Migration MIGRATION_3_4 = new Migration(3, 4) {
 };
 ```
 
-## ViewModel
+## LiveData
+
+> 注意：您可以使用 observeForever(Observer) 方法来注册未关联 LifecycleOwner 对象的观察者。
+  在这种情况下，观察者会被视为始终处于活跃状态，因此它始终会收到关于修改的通知。您可以通过调用 removeObserver(Observer) 方法来移除这些观察者。
+
+> 注意：请确保用于更新界面的 LiveData 对象存储在 ViewModel 对象中，而不是将其存储在 Activity 或 Fragment 中，原因如下：
+  避免 Activity 和 Fragment 过于庞大。现在，这些界面控制器负责显示数据，但不负责存储数据状态。
+  将 LiveData 实例与特定的 Activity 或 Fragment 实例分离开，并使 LiveData 对象在配置更改后继续存在。
+
+> 注意：您必须调用 setValue(T) 方法以从主线程更新 LiveData 对象。如果在 worker 线程中执行代码，则您可以改用 postValue(T) 方法来更新 LiveData 对象。
+
+- 如果 Lifecycle 对象未处于活跃状态，那么即使值发生更改，也不会调用观察者。
+eg:在完成添加后不会立刻更新处于后台的列表页面,当添加页面执行`finish`并且列表页面显示到前台后,才会触发`Observer.onChanged`
+
+- 销毁 Lifecycle 对象后，会自动移除观察者。
+
+### 自定义LiveData
+当 LiveData 对象具有活跃观察者时会调用onActive() , 没有任何活跃观察者时会调用onInactive()
+
+```
+StockLiveData 为单例
+class StockLiveData(symbol: String) : LiveData<BigDecimal>() {
+    private val stockManager: StockManager = StockManager(symbol)
+
+    private val listener = { price: BigDecimal ->
+        value = price
+    }
+
+    override fun onActive() {
+        stockManager.requestPriceUpdates(listener)
+    }
+
+    override fun onInactive() {
+        stockManager.removeUpdates(listener)
+    }
+
+    companion object {
+        private lateinit var sInstance: StockLiveData
+
+        @MainThread
+        fun get(symbol: String): StockLiveData {
+            sInstance = if (::sInstance.isInitialized) sInstance else StockLiveData(symbol)
+            return sInstance
+        }
+    }
+}
+    
+Fragment 中使用:
+class MyFragment : Fragment() {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        StockLiveData.get(symbol).observe(viewLifecycleOwner, Observer<BigDecimal> { price: BigDecimal? ->
+            // Update the UI.
+        })
+
+    }
+    
+```
+### 转换 LiveData
+<https://developer.android.com/topic/libraries/architecture/livedata#transform_livedata>
+
+- Transformations.map()
+
+```
+val userLiveData: LiveData<User> = UserLiveData()
+val userName: LiveData<String> = Transformations.map(userLiveData) {
+    user -> "${user.name} ${user.lastName}"
+}
+```
+
+- Transformations.switchMap()
+
+```
+class MyViewModel(private val repository: PostalCodeRepository) : ViewModel() {
+    private val addressInput = MutableLiveData<String>()
+    val postalCode: LiveData<String> = Transformations.switchMap(addressInput) {
+            address -> repository.getPostCode(address) }
+
+    private fun setInput(address: String) {
+        addressInput.value = address
+    }
+}
+```
+
+在这种情况下，postalCode 字段定义为 addressInput 的转换。只要您的应用具有与 postalCode 字段关联的活跃观察者，就会在 addressInput 发生更改时重新计算并检索该字段的值。
+  
+此机制允许较低级别的应用创建以延迟的方式按需计算的 LiveData 对象。ViewModel 对象可以轻松获取对 LiveData 对象的引用，然后在其基础之上定义转换规则。
+
+### 合并多个 LiveData 源
+<https://developer.android.com/topic/libraries/architecture/livedata#merge_livedata>
+
+`MediatorLiveData` 是 LiveData 的子类，允许您合并多个 LiveData 源。只要任何原始的 LiveData 源对象发生更改，就会触发 MediatorLiveData 对象的观察者。
+
+例如，如果界面中有可以从本地数据库或网络更新的 LiveData 对象，则可以向 MediatorLiveData 对象添加以下源：
+
+- 与存储在数据库中的数据关联的 LiveData 对象。
+
+- 与从网络访问的数据关联的 LiveData 对象。
+
+您的 Activity 只需观察 MediatorLiveData 对象即可从这两个源接收更新。
+
+
+## Lifecycle👏ViewModel
 
 [ViewModel 概览](https://developer.android.com/topic/libraries/architecture/viewmodel.html)
 
-[ViewModel 的已保存状态模块](https://developer.android.com/topic/libraries/architecture/viewmodel-savedstate)
+[CodeLabs - Incorporate Lifecycle-Aware Components](https://codelabs.developers.google.com/codelabs/android-lifecycles/#0)
+<br>对应源码 👉 <https://github.com/googlecodelabs/android-lifecycles>
 
-[ViewModels : A Simple Example](https://medium.com/androiddevelopers/viewmodels-a-simple-example-ed5ac416317e)
 
+### 生命周期
+ViewModel 存在的时间范围是从您首次请求 `ViewModel` 直到 `Activity` 完成并销毁。
+
+![](img/ViewModel LifeCycle.png)
 
 - AndroidViewModel 和 ViewModel 的选择: If you need the application context (which has a lifecycle that lives as long as the application does), use AndroidViewModel
 
@@ -207,12 +314,7 @@ val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
 userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class.java)
 ```
 
-## Lifecycle
-
-[CodeLabs - Incorporate Lifecycle-Aware Components](https://codelabs.developers.google.com/codelabs/android-lifecycles/#0)
-<br>对应源码 👉 <https://github.com/googlecodelabs/android-lifecycles>
-
-- Activity中注册 LifeCycleObserver
+### 自定义`LifeCycleObserver`
 
 ```
 getLifecycle().addObserver(new LifecycleObserver() {
@@ -231,11 +333,22 @@ getLifecycle().addObserver(new LifecycleObserver() {
 ```
 
 ### Fragment Communication
-> **Note:** You should use the activity as the lifecycle owner, as the lifecycle of each fragment is independent.
-
+同一`Activity`下的`Fragment`间通信,采用共享`ViewModel`的方式,即每个`Fragment`共用一个`LifeCycleOwner`对象👉`requireActivity()`
+, 而且每个`Fragment`的`lifecycle`是独立的:
 ```
+1.
+mSeekBarViewModel = new ViewModelProvider(requireActivity()).get(SeekBarViewModel.class);
 
-
+2.
+// Update the SeekBar when the ViewModel is changed.
+mSeekBarViewModel.seekbarValue.observe(requireActivity(), new Observer<I
+    @Override
+    public void onChanged(@Nullable Integer value) {
+        if (value != null) {
+            mSeekBar.setProgress(value);
+        }
+    }
+});
 ```
 
 ### Persist ViewModel state across process recreation (beta)
@@ -290,6 +403,7 @@ public class SavedStateViewModel extends ViewModel {
 ## Paging
 [CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
 
+todo 2020年7月30日 16:11:26   https://developer.android.com/topic/libraries/architecture/paging
 
 
 ## DataBinding
@@ -310,6 +424,7 @@ public class SavedStateViewModel extends ViewModel {
 ## JetPack Bugs
 
 - Room Persistence: Error:Entities and Pojos must have a usable public constructor
+
 <https://stackoverflow.com/questions/44485631/room-persistence-errorentities-and-pojos-must-have-a-usable-public-constructor>
 
 `@Ignore` 应该放到类中声明
@@ -352,6 +467,7 @@ fun getAll(): LiveData<List<User>>
 ```
 
 - Android ViewModel has no zero argument constructor
+
 <https://stackoverflow.com/questions/44194579/android-viewmodel-has-no-zero-argument-constructor>
 
 For lifecycle_version = '2.2.0' ViewProviders.of API is deprecated . It`s my situation :
@@ -374,18 +490,103 @@ userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class
 ```
 
 -  Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number.
+
 改了 data class `User` 中的字段,但是没有更新 version
 
 
+- `Primary key constraint on id is ignored when being merged into com.ando.jetpack.room.User`
+
+<https://stackoverflow.com/questions/47868553/how-to-suppress-the-android-room-warning-primary-key-constraint-on-id-is-ignore>
+
+[An @Embedded field cannot contain Primary Key.](https://medium.com/@kinnerapriyap/entity-embedded-and-composite-primary-keys-with-room-db-8cb6ca6256e8)
+
+error
+```
+@Entity(tableName = "t_user")
+data class User(
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
+    @Embedded var address: Address? = null
+)
+```
+error also
+```
+@Entity(tableName = "t_user")
+data class User(
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
+    @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
+    @Embedded var address: Address? = null
+)
+```
+success
+```
+@SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
+@Entity(tableName = "t_user")
+data class User(
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
+    @Embedded var address: Address? = null
+)
+```
+
+- `A field can be annotated with only one of the following:ColumnInfo,Embedded,Relation`
+
+error
+```
+@Entity(tableName = "t_user")
+data class User(
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
+    @ColumnInfo(name = "address") @Embedded var address: Address? = null
+)
+```
+success
+```
+@Entity(tableName = "t_user")
+data class User(
+    @ColumnInfo(name = "uid") @PrimaryKey var uid: Long?,
+    @Embedded var address: Address? = null
+)
+```
+
+- There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: t_book)
+
+<https://stackoverflow.com/questions/52553971/room-error-there-is-a-problem-with-the-query-sqlite-error-sql-error-or-miss>
+
+You should mention both the entities in your roomDatabase class.
+```
+
+@Database(entities = {BaseWordId.class, ABC.class}, version = VERSION_CODE, exportSchema = false) 
+public abstract class YourDatabase extends RoomDatabase {
+    //your Daos
+}
+```
+
+- The column songId in the junction entity com.ando.jetpack.room.PlaylistSongCrossRef is being used to resolve a relationship but it is not covered by any index. 
+This might cause a full table scan when resolving the relationship, it is highly advised to create an index that covers this column.
+
+warn
+```
+@Entity(primaryKeys = ["playlistId", "songId"])
+data class PlaylistSongCrossRef(
+    val playlistId: Long,
+    val songId: Long
+)
+```
+no warn
+```
+@Entity(primaryKeys = ["playlistId", "songId"])
+data class PlaylistSongCrossRef(
+    val playlistId: Long,
+    @ColumnInfo(index = true) val songId: Long
+)
+```
+
+- [WARN] Incremental annotation processing requested, but support is disabled because the following processors are not incremental: androidx.room.RoomProcessor (DYNAMIC).
+
+<https://stackoverflow.com/questions/57670510/how-to-get-rid-of-incremental-annotation-processing-requested-warning>
+
+
+禁用增量注解 : `gradle.properties` add `kapt.incremental.apt=false`
+
 - 
-
-
-
-
-
-
-
-
 
 
 
