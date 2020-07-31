@@ -421,9 +421,9 @@ todo 2020年7月30日 16:11:26   https://developer.android.com/topic/libraries/a
 
 
 
-## JetPack Bugs
+# JetPack Bugs
 
-- Room Persistence: Error:Entities and Pojos must have a usable public constructor
+## Room Persistence: Error:Entities and Pojos must have a usable public constructor
 
 <https://stackoverflow.com/questions/44485631/room-persistence-errorentities-and-pojos-must-have-a-usable-public-constructor>
 
@@ -453,7 +453,7 @@ data class User(
 
 ```
 
-- Not sure how to convert a Cursor to this method's return type
+## Not sure how to convert a Cursor to this method's return type
 ```
 val allUsers: LiveData<List<User>> = userDao.getAll()
 
@@ -466,7 +466,7 @@ success:
 fun getAll(): LiveData<List<User>>
 ```
 
-- Android ViewModel has no zero argument constructor
+## Android ViewModel has no zero argument constructor
 
 <https://stackoverflow.com/questions/44194579/android-viewmodel-has-no-zero-argument-constructor>
 
@@ -489,7 +489,7 @@ userViewModel = ViewModelProvider(this,factory).get(MainActivityViewModel::class
 
 ```
 
--  Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number.
+## Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number.
 
 改了 data class `User` 中的字段,但是没有更新 version
 
@@ -546,7 +546,7 @@ data class User(
 )
 ```
 
-- There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: t_book)
+## There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: t_book)
 
 <https://stackoverflow.com/questions/52553971/room-error-there-is-a-problem-with-the-query-sqlite-error-sql-error-or-miss>
 
@@ -559,7 +559,7 @@ public abstract class YourDatabase extends RoomDatabase {
 }
 ```
 
-- The column songId in the junction entity com.ando.jetpack.room.PlaylistSongCrossRef is being used to resolve a relationship but it is not covered by any index. 
+## The column songId in the junction entity com.ando.jetpack.room.PlaylistSongCrossRef is being used to resolve a relationship but it is not covered by any index. 
 This might cause a full table scan when resolving the relationship, it is highly advised to create an index that covers this column.
 
 warn
@@ -579,14 +579,14 @@ data class PlaylistSongCrossRef(
 )
 ```
 
-- [WARN] Incremental annotation processing requested, but support is disabled because the following processors are not incremental: androidx.room.RoomProcessor (DYNAMIC).
+## [WARN] Incremental annotation processing requested, but support is disabled because the following processors are not incremental: androidx.room.RoomProcessor (DYNAMIC).
 
 <https://stackoverflow.com/questions/57670510/how-to-get-rid-of-incremental-annotation-processing-requested-warning>
 
 
 禁用增量注解 : `gradle.properties` add `kapt.incremental.apt=false`
 
-- 
+## Updating... 
 
 
 
