@@ -77,7 +77,19 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycle_version"
     // Saved state module
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_save_state_version"
-    kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.lifecycle_version"
+    // Annotation processor
+    // kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.lifecycle_version"
+    // alternately - if using Java8, use the following instead of lifecycle-compiler
+    implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycle_version"
+
+    // optional - helpers for implementing LifecycleOwner in a Service
+    //implementation "androidx.lifecycle:lifecycle-service:$rootProject.lifecycle_version"
+    // optional - ProcessLifecycleOwner provides a lifecycle for the whole application process
+    //implementation "androidx.lifecycle:lifecycle-process:$rootProject.lifecycle_version"
+    // optional - ReactiveStreams support for LiveData
+    //implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$rootProject.lifecycle_version"
+
+
 
     // Paging
     implementation "androidx.paging:paging-runtime:$rootProject.paging_version"

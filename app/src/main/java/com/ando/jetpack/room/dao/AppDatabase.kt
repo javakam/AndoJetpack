@@ -82,8 +82,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
-            val tempInstance =
-                INSTANCE
+            val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
             }

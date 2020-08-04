@@ -176,14 +176,15 @@ static final Migration MIGRATION_3_4 = new Migration(3, 4) {
     @Override
     public void migrate(SupportSQLiteDatabase database) {
         // Create the new table
-        database.execSQL(
-                "CREATE TABLE users_new (userid TEXT, username TEXT, last_update INTEGER, PRIMARY KEY(userid))");
-// Copy the data
-        database.execSQL(
-                "INSERT INTO users_new (userid, username, last_update) SELECT userid, username, last_update FROM users");
-// Remove the old table
+        database.execSQL("CREATE TABLE users_new (userid TEXT, username TEXT, last_update INTEGER, PRIMARY KEY(userid))");
+
+        // Copy the data
+        database.execSQL("INSERT INTO users_new (userid, username, last_update) SELECT userid, username, last_update FROM users");
+        
+        // Remove the old table
         database.execSQL("DROP TABLE users");
-// Change the table name to the correct one
+
+        // Change the table name to the correct one
         database.execSQL("ALTER TABLE users_new RENAME TO users");
     }
 };
@@ -303,7 +304,7 @@ class MyViewModel(private val repository: PostalCodeRepository) : ViewModel() {
 ### 生命周期
 ViewModel 存在的时间范围是从您首次请求 `ViewModel` 直到 `Activity` 完成并销毁。
 
-![](img/ViewModel LifeCycle.png)
+![](https://raw.githubusercontent.com/javakam/JetpackUsage/master/img/ViewModel LifeCycle.png)
 
 - AndroidViewModel 和 ViewModel 的选择: If you need the application context (which has a lifecycle that lives as long as the application does), use AndroidViewModel
 
@@ -401,9 +402,13 @@ public class SavedStateViewModel extends ViewModel {
 ```
 
 ## Paging
-[CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
+[分页库概览](https://developer.android.com/topic/libraries/architecture/paging)
 
-todo 2020年7月30日 16:11:26   https://developer.android.com/topic/libraries/architecture/paging
+[CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
+👉 对应代码 `git clone https://github.com/googlecodelabs/android-paging` 
+
+
+
 
 
 ## DataBinding
@@ -415,10 +420,8 @@ todo 2020年7月30日 16:11:26   https://developer.android.com/topic/libraries/a
 [CodeLabs - Jetpack Navigation](https://codelabs.developers.google.com/codelabs/android-navigation/#0)
 
 
-
 ## WorkManager
 [CodeLabs - Background Work with WorkManager - Kotlin](https://codelabs.developers.google.com/codelabs/android-workmanager/#0)
-
 
 
 # JetPack Bugs
