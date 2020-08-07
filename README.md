@@ -1,11 +1,29 @@
-# JetPackUsage
+# Kotlin Guide & JetPack Usage
 - [CodeLabs](https://codelabs.developers.google.com/?cat=Android)
 
--[Medium](https://medium.com/androiddevelopers)
+- [Medium](https://medium.com/androiddevelopers)
 
 - [architecture-components-samples](https://github.com/android/architecture-components-samples)
 
-## Coroutines
+## KotlinGuide
+<https://github.com/javakam/KotlinGuide>
+
+- 码上开学 : <https://kaixue.io/tag/kotlin-ji-chu/>
+- bilibili : <https://space.bilibili.com/27559447>
+- 博客的 MarkDown : <https://github.com/kaixueio/kaixue-docs/tree/master/kotlinmaster/doc>
+
+### Notes
+
+[1.Kotlin 的变量、函数和类型](https://github.com/javakam/JetpackUsage/blob/master/com/ando/jetpack/kotlin/1.Kotlin 的变量、函数和类型.md)
+
+[2.Kotlin 里那些「不是那么写的」](https://github.com/javakam/JetpackUsage/blob/master/com/ando/jetpack/kotlin/2.Kotlin 里那些「不是那么写的」.md)
+
+[3.Kotlin 里那些「更方便的」](https://github.com/javakam/JetpackUsage/blob/master/com/ando/jetpack/kotlin/3.Kotlin 里那些「更方便的」.md)
+
+[4.Kotlin 的泛型](https://github.com/javakam/JetpackUsage/blob/master/com/ando/jetpack/kotlin/4.Kotlin 的泛型.md)
+
+
+## KotlinGuide Coroutines
 [CodeLabs - Use Kotlin Coroutines in your Android App](https://codelabs.developers.google.com/codelabs/kotlin-coroutines/#0)
 
 
@@ -407,14 +425,191 @@ public class SavedStateViewModel extends ViewModel {
 [CodeLabs - Android Paging](https://codelabs.developers.google.com/codelabs/android-paging/#0)
 👉 对应代码 `git clone https://github.com/googlecodelabs/android-paging` 
 
-
-
-
+As we're already using Flow in our app, we'll continue with this approach; but instead of using Flow<RepoSearchResult>, we'll use Flow<PagingData<Repo>>.
 
 ## DataBinding
 [CodeLabs - Data Binding in Android](https://codelabs.developers.google.com/codelabs/android-databinding/index.html#0)
 
+**Google Databinding** [https://github.com/googlesamples/android-databinding](https://github.com/googlesamples/android-databinding)<br>
 
+- `BR`路径问题: `import androidx.databinding.library.baseAdapters.BR`
+
+### Usage
+1. 两种实现方式:案例中的 LiveDataActivity 采用的是 ViewModel 结合 LiveData 的方式;
+2. 另外一种是把ViewModel实现androidx.databinding.Observable,本身成为观察者,写起来很麻烦,不推荐
+3. 创建绑定的推荐方法是在扩展布局时执行此操作，如以下示例所示：
+```
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    val binding: ActivityMainBinding = DataBindingUtil.setContentView(
+            this, R.layout.activity_main)
+
+    binding.user = User("Test", "User")
+}
+```
+4. 配合ListView 或 RecyclerView 使用:
+```
+val listItemBinding = ListItemBinding.inflate(layoutInflater, viewGroup, false)
+// or
+val listItemBinding = DataBindingUtil.inflate(layoutInflater, R.layout.list_item, viewGroup, false)
+```
+5. 空结合运算符(Null coalescing operator)
+```
+如果前操作数不为空，则空合并运算符（??）选择左操作数;如果前操作数为空，则选择右操作数。
+
+android:text="@{user.displayName ?? user.lastName}"
+```
+等效于:
+```
+android:text="@{user.displayName != null ? user.displayName : user.lastName}"
+```
+6. List 或者 Map
+```
+<data>
+    <import type="android.util.SparseArray"/>
+    <import type="java.util.Map"/>
+    <import type="java.util.List"/>
+    <variable name="list" type="List&lt;String>"/>
+    <variable name="sparse" type="SparseArray&lt;String>"/>
+    <variable name="map" type="Map&lt;String, String>"/>
+    <variable name="index" type="int"/>
+    <variable name="key" type="String"/>
+</data>
+…
+android:text="@{list[index]}"
+…
+android:text="@{sparse[index]}"
+…
+android:text="@{map[key]}"  
+也可以 android:text="@{map.key}"
+还可以使用字符串字面值,单引号或双引号:
+android:text='@{map["firstName"]}' 或 android:text="@{map[`firstName`]}"
+```
+> Note: For the XML to be syntactically correct, you have to escape the < characters. 
+For example: instead of List<String> you have to write List&lt;String>.
+7. 配置方法引用:
+```
+class MyHandlers {
+    fun onClickFriend(view: View) { ... }
+}
+```
+绑定表达式可以将视图的单击侦听器分配给onClickFriend（）方法
+```
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+   <data>
+       <variable name="handlers" type="com.example.MyHandlers"/>
+       <variable name="user" type="com.example.User"/>
+   </data>
+   <LinearLayout
+       android:orientation="vertical"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+       <TextView android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="@{user.firstName}"
+           android:onClick="@{handlers::onClickFriend}"/>
+   </LinearLayout>
+</layout>
+```
+8. 监听器绑定
+```
+class Presenter {
+    fun onSaveClick(task: Task){}
+}
+```
+然后，你可以将 click 事件绑定到 onSaveClick（）方法，如下所示：
+```
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="task" type="com.android.example.Task" />
+        <variable name="presenter" type="com.android.example.Presenter" />
+    </data>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:onClick="@{() -> presenter.onSaveClick(task)}" />
+    </LinearLayout>
+</layout>
+```
+也可以写成:
+```
+android:onClick="@{(view) -> presenter.onSaveClick(task)}"
+```
+另外，如果要在表达式中使用该参数，则可以按如下方式工作
+```
+class Presenter {
+    fun onSaveClick(view: View, task: Task){}
+}
+
+android:onClick="@{(theView) -> presenter.onSaveClick(theView, task)}"
+```
+你可以使用带有多个参数的 lambda 表达式：
+```
+class Presenter {
+    fun onCompletedChanged(task: Task, completed: Boolean){}
+}
+
+<CheckBox
+      android:layout_width="wrap_content" 
+      android:layout_height="wrap_content"
+      android:onCheckedChanged="@{(cb, isChecked) -> presenter.completeChanged(task, isChecked)}" />
+```
+
+9. 别名
+```
+<import type="android.view.View"/>
+<import type="com.example.real.estate.View"
+        alias="Vista"/>
+```
+10. include 标签
+```
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
+   <data>
+       <variable name="user" type="com.example.User"/>
+   </data>
+   <LinearLayout
+       android:orientation="vertical"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+       <include layout="@layout/name"
+           bind:user="@{user}"/>
+       <include layout="@layout/contact"
+           bind:user="@{user}"/>
+   </LinearLayout>
+</layout>
+```
+不支持 merge 标签:
+```
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
+   <data>
+       <variable name="user" type="com.example.User"/>
+   </data>
+   <merge><!-- Doesn't work -->
+       <include layout="@layout/name"
+           bind:user="@{user}"/>
+       <include layout="@layout/contact"
+           bind:user="@{user}"/>
+   </merge>
+</layout>
+```
+
+### Databinding Observable
+//todo 2019年8月15日 14:21:14 https://developer.android.google.cn/topic/libraries/data-binding/observability
+//继续学习Databinding
+
+
+
+DataBinding 参考<br>
+[Google Databinding](https://developer.android.google.cn/topic/libraries/data-binding#kotlin)
+[DataBinding最详细使用](https://blog.csdn.net/liangjingkanji/article/details/82180695)<br>
+[DataBinding的基本使用（一)](https://blog.csdn.net/qq_33689414/article/details/52205703)<br>
+//todo 2019年8月14日 17:01:09 https://github.com/googlesamples/android-sunflower.git
 
 ## Navigation
 [CodeLabs - Jetpack Navigation](https://codelabs.developers.google.com/codelabs/android-navigation/#0)

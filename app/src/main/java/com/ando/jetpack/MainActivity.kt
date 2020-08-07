@@ -15,8 +15,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.ando.jetpack.paging.GitHubActivity
 import com.ando.jetpack.room.User
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -34,6 +36,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         //supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_main)
+
+        //GitHubActivity
+        tvGitHubActivity.setOnClickListener {
+            startActivity(Intent(this, GitHubActivity::class.java))
+        }
+
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
         val adapter = UserListAdapter()

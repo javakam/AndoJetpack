@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="com.ando.jetpack.databinding.MemberBean" alias="MemberBean"/>
+        <variable name="member" type="MemberBean"/>
+    </data>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:padding="12dp"
+                  android:orientation="vertical">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="演示Databinding双向绑定" android:textSize="12sp"
+                  android:textAllCaps="false"
+                  android:textColor="@android:color/holo_red_light"/>
+
+        <EditText android:layout_width="wrap_content"
+                  android:hint="请编辑姓名"
+                  android:layout_marginTop="15dp"
+                  android:text="@{member.name}"
+                  android:layout_height="wrap_content"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:textAllCaps="false"
+                android:text="设置姓名(View->Data)"
+                android:layout_height="wrap_content"/>
+
+        <EditText android:layout_width="wrap_content"
+                  android:hint="请编辑年龄"
+                  android:layout_marginTop="15dp"
+                  android:text="@{String.valueOf(member.age)}"
+                  android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:overScrollMode="always"
+                android:layout_marginTop="15dp"
+                android:scrollbars="vertical"
+                android:scrollbarSize="20dp"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+</layout>
